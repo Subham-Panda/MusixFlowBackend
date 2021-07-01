@@ -2,7 +2,15 @@ const express = require('express');
 const { validate } = require('express-validation');
 const controller = require('./controller');
 const {
-  users, registerUser, connectWallet, disconnectWallet, wallet, loginUser,
+  users,
+  registerUser,
+  connectWallet,
+  disconnectWallet,
+  wallet,
+  loginUser,
+  getProfilePayload,
+  updateProfilePayload,
+  deleteProfilePayload,
 } = require('./validation');
 const { authorize } = require('../../../middlewares/auth');
 
@@ -16,6 +24,12 @@ routes.use(authorize());
 
 // routes.route('/').get(validate(users), authorize(), controller.users);
 routes.route('/').get(validate(users), controller.users);
+
+routes.route('/profile/get').get(validate(getProfilePayload), controller.getProfile);
+
+routes.route('/profile/update').patch(validate(updateProfilePayload), controller.updateProfile);
+
+routes.route('/profile/delete').delete(validate(deleteProfilePayload), controller.deleteProfile);
 
 routes.route('/wallet').get(validate(wallet), controller.getWallet);
 
