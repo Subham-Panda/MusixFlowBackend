@@ -1,3 +1,4 @@
+/* eslint-disable sort-keys */
 const { Joi } = require('express-validation');
 
 const headers = {
@@ -65,6 +66,32 @@ module.exports = {
   wallet: {
     ...headers,
     query: Joi.object({}),
+  },
+
+  // GET /v1/user/profile/get
+  getProfilePayload: {
+    ...headers,
+    body: Joi.object({}),
+  },
+
+  // PATCH /v1/user/profile/update
+  updateProfilePayload: {
+    ...headers,
+    body: Joi.object({
+      address: Joi.string().trim(),
+      city: Joi.string().trim(),
+      country: Joi.string().trim(),
+      currency: Joi.string().trim(),
+      first_name: Joi.string().trim(),
+      last_name: Joi.string().trim(),
+      name: Joi.string().trim(),
+    }),
+  },
+
+  // DELETE /v1/user/profile/delete
+  deleteProfilePayload: {
+    ...headers,
+    body: Joi.object({}),
   },
 
 };
