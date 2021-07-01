@@ -177,7 +177,7 @@ exports.disconnectWallet = async (req, res, next) => {
   }
 };
 
-exports.updateProfileData = async (req, res, next) => {
+exports.updateProfile = async (req, res, next) => {
   try {
     if (req.user && req.user.account_type === 'user') {
       const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {
@@ -207,7 +207,7 @@ exports.updateProfileData = async (req, res, next) => {
   }
 };
 
-exports.getProfileData = async (req, res, next) => {
+exports.getProfile = async (req, res, next) => {
   try {
     if (req.user) {
       const user = await User.findById(req.user._id);
@@ -222,6 +222,34 @@ exports.getProfileData = async (req, res, next) => {
       return res.status(httpStatus.OK).json({
         code: httpStatus.OK,
         message: 'User Found',
+        user,
+      });
+    }
+
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      code: httpStatus.UNAUTHORIZED,
+      message: 'User must be logged in',
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.deleteProfile = async (req, res, next) => {
+  try {
+    if (req.user) {
+      const user = await User.findByIdAndUpdate(req.user._id, { status: 'deleted' }, { new: true });
+
+      if (!user) {
+        return res.status(httpStatus.NOT_FOUND).json({
+          code: httpStatus.NOT_FOUND,
+          message: 'No document found with the given user id',
+        });
+      }
+
+      return res.status(httpStatus.OK).json({
+        code: httpStatus.OK,
+        message: 'User Status set to deleted',
         user,
       });
     }
