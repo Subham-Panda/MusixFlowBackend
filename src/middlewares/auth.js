@@ -39,7 +39,7 @@ const authorize = async (req, res, next) => {
 
       return next();
     } catch (e) {
-      console.log(e)
+      console.log(e);
       apiError.message = 'Token Expired';
 
       return next(apiError);

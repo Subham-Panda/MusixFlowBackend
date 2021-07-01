@@ -113,7 +113,7 @@ exports.login = async (req, res, next) => {
     const refreshToken = uuidv4() + user._id;
     const newToken = user.token(refreshToken);
 
-    await User.update({ _id: user._id }, { $set: { access_token: newToken } });
+    await User.updateOne({ _id: user._id }, { $set: { access_token: newToken } });
     user.access_token = newToken;
 
     return res.status(httpStatus.OK).json({
@@ -149,7 +149,7 @@ exports.connectWallet = async (req, res, next) => {
       body: { walletId },
     } = req;
 
-    await User.update({ _id: user._id }, { $set: { wallet_id: walletId } });
+    await User.updateOne({ _id: user._id }, { $set: { wallet_id: walletId } });
 
     return res.status(httpStatus.OK).json({
       code: httpStatus.OK,
@@ -165,12 +165,70 @@ exports.disconnectWallet = async (req, res, next) => {
   try {
     const { user } = req;
 
-    await User.update({ _id: user._id }, { $set: { wallet_id: null } });
+    await User.updateOne({ _id: user._id }, { $set: { wallet_id: null } });
 
     return res.status(httpStatus.OK).json({
       code: httpStatus.OK,
       message: 'Wallet disconnected successfully',
       status: true,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.updateProfileData = async (req, res, next) => {
+  try {
+    if (req.user && req.user.account_type === 'user') {
+      const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {
+        new: true, runValidators: true,
+      });
+
+      if (!updatedUser) {
+        return res.status(httpStatus.NOT_FOUND).json({
+          code: httpStatus.NOT_FOUND,
+          message: 'No document found with the given user id',
+        });
+      }
+
+      return res.status(httpStatus.OK).json({
+        code: httpStatus.OK,
+        message: 'User updated Successfully',
+        updatedUser,
+      });
+    }
+
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      code: httpStatus.UNAUTHORIZED,
+      message: 'User must be logged in',
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
+
+exports.getProfileData = async (req, res, next) => {
+  try {
+    if (req.user) {
+      const user = await User.findById(req.user._id);
+
+      if (!user) {
+        return res.status(httpStatus.NOT_FOUND).json({
+          code: httpStatus.NOT_FOUND,
+          message: 'No document found with the given user id',
+        });
+      }
+
+      return res.status(httpStatus.OK).json({
+        code: httpStatus.OK,
+        message: 'User Found',
+        user,
+      });
+    }
+
+    return res.status(httpStatus.UNAUTHORIZED).json({
+      code: httpStatus.UNAUTHORIZED,
+      message: 'User must be logged in',
     });
   } catch (error) {
     return next(error);
