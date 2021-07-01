@@ -85,6 +85,7 @@ module.exports = {
       first_name: Joi.string().trim(),
       last_name: Joi.string().trim(),
       name: Joi.string().trim(),
+      profile_image: Joi.string().trim(),
     }),
   },
 

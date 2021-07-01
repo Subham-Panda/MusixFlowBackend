@@ -179,7 +179,7 @@ exports.disconnectWallet = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
-    if (req.user && req.user.account_type === 'user') {
+    if (req.user) {
       const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {
         new: true, runValidators: true,
       });
