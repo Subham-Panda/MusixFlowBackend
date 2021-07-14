@@ -41,12 +41,12 @@ module.exports = {
 
   // POST /v1/user/register
   registerUser: {
-    ...headers,
     body: Joi.object({
-      firebaseUserId: Joi.string().required(),
+      firebase_user_id: Joi.string().required(),
       name: Joi.string().optional(),
-      phone: Joi.string().required(),
-      refreshToken: Joi.string().required(),
+      phone: Joi.string().optional(),
+      email: Joi.string().optional(),
+      refresh_token: Joi.string().required(),
     }),
   },
 
@@ -69,15 +69,12 @@ module.exports = {
   },
 
   // GET /v1/user/profile/get
-  getProfilePayload: {
-    ...headers,
-    body: Joi.object({}),
-  },
+  getProfilePayload: { body: Joi.object({ firebase_user_id: Joi.string().required() }) },
 
   // PATCH /v1/user/profile/update
   updateProfilePayload: {
-    ...headers,
     body: Joi.object({
+      firebase_user_id: Joi.string().required(),
       address: Joi.string().trim(),
       city: Joi.string().trim(),
       country: Joi.string().trim(),

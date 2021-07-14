@@ -20,14 +20,14 @@ routes.route('/register').post(validate(registerUser, {}, {}), controller.regist
 
 routes.route('/login').post(validate(loginUser, {}, {}), controller.login);
 
+routes.route('/profile/get').post(validate(getProfilePayload), controller.getProfile);
+
+routes.route('/profile/update').patch(validate(updateProfilePayload), controller.updateProfile);
+
 routes.use(authorize());
 
 // routes.route('/').get(validate(users), authorize(), controller.users);
 routes.route('/').get(validate(users), controller.users);
-
-routes.route('/profile/get').get(validate(getProfilePayload), controller.getProfile);
-
-routes.route('/profile/update').patch(validate(updateProfilePayload), controller.updateProfile);
 
 routes.route('/profile/delete').delete(validate(deleteProfilePayload), controller.deleteProfile);
 

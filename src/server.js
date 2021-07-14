@@ -12,16 +12,16 @@ const {
 
 const ddosInstance = new Ddos(ddosConfig);
 
-const corsOptions = {
-  exposedHeaders: 'authorization, x-refresh-token, x-token-expiry-time',
-  origin: (origin, callback) => {
-    if (!whitelist || whitelist.includes(origin)) {
-      callback(null, true);
-    } else {
-      callback(new Error('Not allowed by CORS'));
-    }
-  },
-};
+// const corsOptions = {
+//   exposedHeaders: 'authorization, x-refresh-token, x-token-expiry-time',
+//   origin: (origin, callback) => {
+//     if (!whitelist || whitelist.includes(origin)) {
+//       callback(null, true);
+//     } else {
+//       callback(new Error('Not allowed by CORS'));
+//     }
+//   },
+// };
 
 /**
  * Express instance
@@ -31,20 +31,22 @@ const corsOptions = {
 const server = express();
 const xlogs = new ExpressLogs(false);
 
+server.use(express.static('src/images'));
+
 // npm module for preventing ddos attack. See more https://www.npmjs.com/package/ddos
 server.use(ddosInstance.express);
 
 // parse body params and attache them to req.body
 server.use(bodyParser.json());
-server.use(bodyParser.urlencoded({ extended: true }));
+// server.use(bodyParser.urlencoded({ extended: true }));
 
-server.use(xlogs.logger);
+// server.use(xlogs.logger);
 
 // secure servers by setting various HTTP headers
 server.use(helmet());
 
 // enable CORS - Cross Origin Resource Sharing
-server.use(cors(corsOptions));
+server.use(cors());
 
 // mount api v1 routes
 server.use('/v1', routes);

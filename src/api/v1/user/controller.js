@@ -57,37 +57,56 @@ exports.users = async (req, res, next) => {
 
 exports.register = async (req, res, next) => {
   try {
-    let {
-      body: {
-        // eslint-disable-next-line prefer-const
-        firebaseUserId, name, phone, refreshToken,
-      },
-    } = req;
+    const {
+      firebaseUserId, phone, email,
+    } = req.body;
 
-    phone = phone.split(' ').join('');
+    let usercreated = false;
 
-    const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { phone }] });
+    let user;
 
-    if (existingUser) {
-      return res.status(httpStatus.CONFLICT).json({
-        code: httpStatus.CONFLICT,
-        message: 'User is already exist with that "firebaseUserId" Or "phone"',
-        status: false,
+    if (phone) {
+      const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { phone }] });
+
+      if (existingUser) {
+        return res.status(httpStatus.CONFLICT).json({
+          code: httpStatus.CONFLICT,
+          message: 'User is already exist with that "firebaseUserId" Or "phone"',
+          status: false,
+        });
+      }
+
+      user = await new User(req.body).save();
+
+      usercreated = true;
+    } else if (email) {
+      const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { email }] });
+
+      if (existingUser) {
+        return res.status(httpStatus.CONFLICT).json({
+          code: httpStatus.CONFLICT,
+          message: 'User is already exist with that "firebaseUserId" Or "phone"',
+          status: false,
+        });
+      }
+
+      user = await new User(req.body).save();
+
+      usercreated = true;
+    }
+
+    if (usercreated) {
+      return res.status(httpStatus.OK).json({
+        code: httpStatus.OK,
+        data: { user },
+        message: 'User registered successfully',
+        status: true,
       });
     }
 
-    const user = await new User({
-      firebase_user_id: firebaseUserId,
-      name,
-      phone,
-      refresh_token: refreshToken,
-    }).save();
-
-    return res.status(httpStatus.OK).json({
-      code: httpStatus.OK,
-      data: { user },
-      message: 'User registered successfully',
-      status: true,
+    return res.status(httpStatus.BAD_REQUEST).json({
+      code: httpStatus.BAD_REQUEST,
+      message: 'No phone or email to register user',
     });
   } catch (error) {
     return next(error);
@@ -179,28 +198,21 @@ exports.disconnectWallet = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
-    if (req.user) {
-      const updatedUser = await User.findByIdAndUpdate(req.user._id, req.body, {
-        new: true, runValidators: true,
-      });
+    const updatedUser = await User.findOneAndUpdate({ firebase_user_id: req.body.firebase_user_id }, req.body, {
+      new: true, runValidators: true,
+    });
 
-      if (!updatedUser) {
-        return res.status(httpStatus.NOT_FOUND).json({
-          code: httpStatus.NOT_FOUND,
-          message: 'No document found with the given user id',
-        });
-      }
-
-      return res.status(httpStatus.OK).json({
-        code: httpStatus.OK,
-        message: 'User updated Successfully',
-        updatedUser,
+    if (!updatedUser) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        code: httpStatus.NOT_FOUND,
+        message: 'No document found with the given user id',
       });
     }
 
-    return res.status(httpStatus.UNAUTHORIZED).json({
-      code: httpStatus.UNAUTHORIZED,
-      message: 'User must be logged in',
+    return res.status(httpStatus.OK).json({
+      code: httpStatus.OK,
+      message: 'User updated Successfully',
+      updatedUser,
     });
   } catch (error) {
     return next(error);
@@ -209,26 +221,19 @@ exports.updateProfile = async (req, res, next) => {
 
 exports.getProfile = async (req, res, next) => {
   try {
-    if (req.user) {
-      const user = await User.findById(req.user._id);
+    const user = await User.findOne({ firebase_user_id: req.body.firebase_user_id });
 
-      if (!user) {
-        return res.status(httpStatus.NOT_FOUND).json({
-          code: httpStatus.NOT_FOUND,
-          message: 'No document found with the given user id',
-        });
-      }
-
-      return res.status(httpStatus.OK).json({
-        code: httpStatus.OK,
-        message: 'User Found',
-        user,
+    if (!user) {
+      return res.status(httpStatus.NOT_FOUND).json({
+        code: httpStatus.NOT_FOUND,
+        message: 'No document found with the given user id',
       });
     }
 
-    return res.status(httpStatus.UNAUTHORIZED).json({
-      code: httpStatus.UNAUTHORIZED,
-      message: 'User must be logged in',
+    return res.status(httpStatus.OK).json({
+      code: httpStatus.OK,
+      message: 'User Found',
+      user,
     });
   } catch (error) {
     return next(error);

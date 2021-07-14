@@ -8,5 +8,6 @@ module.exports = {
     'max-classes-per-file': ['error', 2],
     'no-console': 'off',
     'no-underscore-dangle': 'off',
+    'sort-keys': 'off',
   },
 };

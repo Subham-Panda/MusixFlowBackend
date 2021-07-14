@@ -4,7 +4,7 @@
   "description": "inflow music",
   "main": "src/index.js",
   "scripts": {
-    "start": "node ./src/index.js",
+    "start": "nodemon ./src/index.js",
     "lint": "./node_modules/.bin/eslint . --ext .js --fix"
   },
   "keywords": [
@@ -28,6 +28,8 @@
     "lodash": "^4.17.21",
     "moment": "^2.29.1",
     "mongoose": "^5.12.13",
+    "multer": "^1.4.2",
+    "sharp": "^0.28.3",
     "underscore": "^1.13.1",
     "uuid": "^8.3.2"
   },
