@@ -154,3 +154,33 @@ exports.getLabelArtists = async (req, res, next) => {
     return next(error);
   }
 };
+
+exports.isArtist = async (req, res, next) => {
+  try {
+    const { email } = req.body;
+    const artist = await Artist.findOne({ email });
+
+    let isArtist = false;
+
+    if (artist) {
+      isArtist = true;
+    } else {
+      isArtist = false;
+    }
+
+    if (isArtist) {
+      return res.status(httpStatus.OK).json({
+        code: httpStatus.OK,
+        isArtist,
+        artist,
+      });
+    }
+
+    return res.status(httpStatus.OK).json({
+      code: httpStatus.OK,
+      isArtist,
+    });
+  } catch (error) {
+    return next(error);
+  }
+};
