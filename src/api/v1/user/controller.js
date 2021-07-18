@@ -60,7 +60,7 @@ exports.users = async (req, res, next) => {
 exports.register = async (req, res, next) => {
   try {
     const {
-      firebaseUserId, phone, email,
+      firebase_user_id, phone, email,
     } = req.body;
 
     let usercreated = false;
@@ -71,7 +71,7 @@ exports.register = async (req, res, next) => {
       type;
 
     if (phone) {
-      const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { phone }] });
+      const existingUser = await User.findOne({ $or: [{ firebase_user_id }, { phone }] });
 
       if (existingUser) {
         return res.json({
@@ -85,7 +85,7 @@ exports.register = async (req, res, next) => {
       usercreated = true;
       type = 'phone';
     } else if (email) {
-      const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { email }] });
+      const existingUser = await User.findOne({ $or: [{ firebase_user_id }, { email }] });
 
       if (existingUser) {
         return res.json({
@@ -99,12 +99,13 @@ exports.register = async (req, res, next) => {
       usercreated = true;
       type = 'email';
     }
-
+    console.log({usercreated})
     if (usercreated) {
+      console.log("inside usercreated")
       if (type === 'email') {
-        await User.findOneAndUpdate({ email }, { firebase_user_id: firebaseUserId });
+        await User.findOneAndUpdate({ email }, { firebase_user_id });
       } else if (type === 'phone') {
-        await User.findOneAndUpdate({ phone }, { firebase_user_id: firebaseUserId });
+        await User.findOneAndUpdate({ phone }, { firebase_user_id });
       }
 
       return res.status(httpStatus.OK).json({
@@ -263,8 +264,7 @@ exports.getProfile = async (req, res, next) => {
     const user = await User.findOne({ firebase_user_id: req.body.firebase_user_id });
 
     if (!user) {
-      return res.status(httpStatus.NOT_FOUND).json({
-        code: httpStatus.NOT_FOUND,
+      return res.json({
         message: 'No document found with the given user id',
       });
     }
@@ -285,7 +285,7 @@ exports.deleteProfile = async (req, res, next) => {
       const user = await User.findByIdAndUpdate(req.user._id, { status: 'deleted' }, { new: true });
 
       if (!user) {
-        return res.status(httpStatus.NOT_FOUND).json({
+        return res.json({
           code: httpStatus.NOT_FOUND,
           message: 'No document found with the given user id',
         });

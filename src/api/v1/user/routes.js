@@ -9,7 +9,6 @@ const {
   disconnectWallet,
   wallet,
   loginUser,
-  getProfilePayload,
   deleteProfilePayload,
 } = require('./validation');
 const { authorize } = require('../../../middlewares/auth');
@@ -27,7 +26,7 @@ routes.route('/register').post(validate(registerUser, {}, {}), controller.regist
 
 routes.route('/login').post(validate(loginUser, {}, {}), controller.login);
 
-routes.route('/profile/get').post(validate(getProfilePayload), controller.getProfile);
+routes.route('/profile/get').post(controller.getProfile);
 
 routes.route('/profile/update').patch(upload.fields(onBoardingImages), controller.updateProfile);
 
