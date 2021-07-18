@@ -69,8 +69,7 @@ exports.register = async (req, res, next) => {
       const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { phone }] });
 
       if (existingUser) {
-        return res.status(httpStatus.CONFLICT).json({
-          code: httpStatus.CONFLICT,
+        return res.json({
           message: 'User is already exist with that "firebaseUserId" Or "phone"',
           status: false,
         });
@@ -83,8 +82,7 @@ exports.register = async (req, res, next) => {
       const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { email }] });
 
       if (existingUser) {
-        return res.status(httpStatus.CONFLICT).json({
-          code: httpStatus.CONFLICT,
+        return res.json({
           message: 'User is already exist with that "firebaseUserId" Or "phone"',
           status: false,
         });
