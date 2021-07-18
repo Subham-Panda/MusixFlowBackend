@@ -1,7 +1,9 @@
 const httpStatus = require('http-status');
 // const uuidv4 = require('uuid');
+const sharp = require('sharp');
 const { v4: uuidv4 } = require('uuid');
 const User = require('./model');
+const Artist = require('../artist/model');
 const { keysToCamel } = require('../../../utils/snake');
 
 exports.users = async (req, res, next) => {
@@ -65,6 +67,9 @@ exports.register = async (req, res, next) => {
 
     let user;
 
+    let
+      type;
+
     if (phone) {
       const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { phone }] });
 
@@ -78,12 +83,13 @@ exports.register = async (req, res, next) => {
       user = await new User(req.body).save();
 
       usercreated = true;
+      type = 'phone';
     } else if (email) {
       const existingUser = await User.findOne({ $or: [{ firebase_user_id: firebaseUserId }, { email }] });
 
       if (existingUser) {
         return res.json({
-          message: 'User is already exist with that "firebaseUserId" Or "phone"',
+          message: 'User is already exist with that "firebaseUserId" Or "email"',
           status: false,
         });
       }
@@ -91,9 +97,16 @@ exports.register = async (req, res, next) => {
       user = await new User(req.body).save();
 
       usercreated = true;
+      type = 'email';
     }
 
     if (usercreated) {
+      if (type === 'email') {
+        await User.findOneAndUpdate({ email }, { firebase_user_id: firebaseUserId });
+      } else if (type === 'phone') {
+        await User.findOneAndUpdate({ phone }, { firebase_user_id: firebaseUserId });
+      }
+
       return res.status(httpStatus.OK).json({
         code: httpStatus.OK,
         data: { user },
@@ -196,9 +209,37 @@ exports.disconnectWallet = async (req, res, next) => {
 
 exports.updateProfile = async (req, res, next) => {
   try {
+    const user = await User.findOne({ firebase_user_id: req.body.firebase_user_id });
+
+    if (req.files.profile) {
+      const profilepic = req.files.profile[0];
+      const profilepicname = `${user._id}_profilepic.jpeg`;
+
+      await sharp(profilepic.buffer)
+        .resize(500, 500)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`${__dirname}/../../../images/${profilepicname}`);
+      req.body.profile_image = profilepicname;
+    }
+
+    if (req.files.banner) {
+      const bannerpic = req.files.banner[0];
+      const bannerpicname = `${user._id}_bannerpic.jpeg`;
+
+      await sharp(bannerpic.buffer)
+        .resize(1266, 530)
+        .toFormat('jpeg')
+        .jpeg({ quality: 90 })
+        .toFile(`${__dirname}/../../../images/${bannerpicname}`);
+      req.body.banner_image = bannerpicname;
+    }
+
     const updatedUser = await User.findOneAndUpdate({ firebase_user_id: req.body.firebase_user_id }, req.body, {
       new: true, runValidators: true,
     });
+
+    await Artist.findOneAndUpdate({ email: updatedUser.email }, req.body);
 
     if (!updatedUser) {
       return res.status(httpStatus.NOT_FOUND).json({

@@ -31,7 +31,12 @@ exports.updateArtistPayload = {
     email: Joi.string().trim(),
     phone: Joi.string(),
     pin_code: Joi.string().trim(),
+    wallet_id: Joi.string().trim(),
+    social_token_id: Joi.string().trim(),
+    social_token_symbol: Joi.string().trim(),
   }),
 };
+
+exports.deactivateArtistPayload = { body: Joi.object({ id: Joi.string().trim().required() }) };
 
 exports.getArtistByIdPayload = { body: Joi.object({ id: Joi.string().trim() }) };

@@ -35,7 +35,12 @@ const userSchema = new mongoose.Schema({
   password: { type: String },
   phone: { type: String },
   pin_code: { type: String },
-  profile_image: { type: String },
+  profile_image: {
+    type: String, default: '',
+  },
+  banner_image: {
+    type: String, default: '',
+  },
   refresh_token: { type: String },
   status: {
     default: 'active',

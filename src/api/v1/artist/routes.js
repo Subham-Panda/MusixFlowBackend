@@ -3,10 +3,10 @@ const { validate } = require('express-validation');
 const multer = require('multer');
 
 const {
-  artistOnboarding, getAllArtists, updateArtist, getArtistById, getLabels, getLabelArtists, isArtist,
+  artistOnboarding, getAllArtists, updateArtist, getArtistById, getLabels, getLabelArtists, isArtist, deactivateArtist,
 } = require('./controller');
 const {
-  artistOnboardingPayload, updateArtistPayload, getAllArtistsPayload, getArtistByIdPayload,
+  artistOnboardingPayload, getAllArtistsPayload, getArtistByIdPayload, deactivateArtistPayload,
 } = require('./validation');
 
 const routes = express.Router();
@@ -22,7 +22,8 @@ routes
 routes.get('/getall', validate(getAllArtistsPayload), getAllArtists);
 routes.post('/getbyid', validate(getArtistByIdPayload), getArtistById);
 routes.post('/isArtist', isArtist);
-routes.patch('/update', validate(updateArtistPayload), updateArtist);
+routes.patch('/update', upload.fields(onBoardingImages), updateArtist);
+routes.patch('/deactivate', validate(deactivateArtistPayload), deactivateArtist);
 routes.get('/labels', getLabels);
 routes.post('/artistsbylabel', getLabelArtists);
 

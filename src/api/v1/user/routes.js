@@ -1,5 +1,6 @@
 const express = require('express');
 const { validate } = require('express-validation');
+const multer = require('multer');
 const controller = require('./controller');
 const {
   users,
@@ -9,12 +10,18 @@ const {
   wallet,
   loginUser,
   getProfilePayload,
-  updateProfilePayload,
   deleteProfilePayload,
 } = require('./validation');
 const { authorize } = require('../../../middlewares/auth');
 
 const routes = express.Router();
+
+const upload = multer();
+const onBoardingImages = [{
+  name: 'profile', maxCount: 1,
+}, {
+  name: 'banner', maxCount: 1,
+}];
 
 routes.route('/register').post(validate(registerUser, {}, {}), controller.register);
 
@@ -22,7 +29,7 @@ routes.route('/login').post(validate(loginUser, {}, {}), controller.login);
 
 routes.route('/profile/get').post(validate(getProfilePayload), controller.getProfile);
 
-routes.route('/profile/update').patch(validate(updateProfilePayload), controller.updateProfile);
+routes.route('/profile/update').patch(upload.fields(onBoardingImages), controller.updateProfile);
 
 routes.use(authorize());
 
