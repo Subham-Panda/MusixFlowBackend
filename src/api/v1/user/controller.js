@@ -99,9 +99,7 @@ exports.register = async (req, res, next) => {
       usercreated = true;
       type = 'email';
     }
-    console.log({usercreated})
     if (usercreated) {
-      console.log("inside usercreated")
       if (type === 'email') {
         await User.findOneAndUpdate({ email }, { firebase_user_id });
       } else if (type === 'phone') {
@@ -264,9 +262,7 @@ exports.getProfile = async (req, res, next) => {
     const user = await User.findOne({ firebase_user_id: req.body.firebase_user_id });
 
     if (!user) {
-      return res.json({
-        message: 'No document found with the given user id',
-      });
+      return res.json({ message: 'No document found with the given user id' });
     }
 
     return res.status(httpStatus.OK).json({
