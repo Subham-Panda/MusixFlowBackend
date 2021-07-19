@@ -19,7 +19,9 @@ const artistSchema = new mongoose.Schema({
     default: Date.now,
     type: Number,
   },
-  label: { type: String, default: '' },
+  label: {
+    type: String, default: '',
+  },
   email: { type: String },
   email_verified: {
     default: false,
